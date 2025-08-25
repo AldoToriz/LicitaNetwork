@@ -1,0 +1,15 @@
+// backend/models/Tender.js
+const mongoose = require('mongoose');
+
+const tenderSchema = new mongoose.Schema({
+  tenderId: { type: String, required: true, unique: true },
+  serviceName: { type: String, required: true },
+  contractingEntity: { type: String, required: true },
+  country: { type: String, required: true },
+  budget: { type: Number, required: true },
+  currency: { type: String, required: true },
+  deadline: { type: Date, required: true },
+  sourceUrl: { type: String, required: true }
+});
+
+module.exports = mongoose.model('Tender', tenderSchema);
