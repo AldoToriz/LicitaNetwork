@@ -1,0 +1,44 @@
+# importer.py
+import requests
+from pymongo import MongoClient
+from datetime import datetime
+
+# Conexión a MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['licitanetworkdb']
+tenders_collection = db['tenders']
+
+def import_bcie_tenders():
+    # URL de ejemplo de una API pública (hipotética)
+    api_url = 'https://api.bcie.org/tenders'
+    
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()  # Lanza un error para códigos de estado 4xx/5xx
+        data = response.json()
+        
+        for tender_data in data:
+            # Transformar los datos al formato del modelo
+            tender = {
+                "tenderId": tender_data['id'],
+                "serviceName": tender_data['title'],
+                "contractingEntity": 'BCIE',
+                "country": tender_data['country'],
+                "budget": tender_data['budget_amount'],
+                "currency": tender_data['budget_currency'],
+                "deadline": datetime.strptime(tender_data['deadline_date'], '%Y-%m-%dT%H:%M:%SZ'),
+                "sourceUrl": tender_data['link']
+            }
+            # Insertar en la base de datos, ignorando duplicados
+            tenders_collection.update_one(
+                {'tenderId': tender['tenderId']}, 
+                {'$set': tender}, 
+                upsert=True
+            )
+            print(f"Licitación BCIE {tender['tenderId']} importada.")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error al importar licitaciones del BCIE: {e}")
+
+if __name__ == "__main__":
+    import_bcie_tenders()
