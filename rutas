@@ -1,0 +1,17 @@
+// backend/routes/tenderRoutes.js
+const express = require('express');
+const Tender = require('../models/Tender');
+
+const router = express.Router();
+
+// Ruta para obtener todas las licitaciones
+router.get('/', async (req, res) => {
+  try {
+    const tenders = await Tender.find();
+    res.json(tenders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+module.exports = router;
