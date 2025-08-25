@@ -1,0 +1,56 @@
+// frontend/src/components/TenderList.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const TenderList = () => {
+  const [tenders, setTenders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTenders = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/tenders');
+        setTenders(response.data);
+      } catch (error) {
+        console.error('Error al obtener las licitaciones:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTenders();
+  }, []);
+
+  if (loading) {
+    return <div>Cargando licitaciones...</div>;
+  }
+
+  return (
+    <div className="tender-list-container">
+      <h2>Licitaciones Disponibles</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Entidad</th>
+            <th>País</th>
+            <th>Presupuesto</th>
+            <th>Fecha Límite</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tenders.map((tender) => (
+            <tr key={tender._id}>
+              <td><a href={tender.sourceUrl} target="_blank" rel="noopener noreferrer">{tender.serviceName}</a></td>
+              <td>{tender.contractingEntity}</td>
+              <td>{tender.country}</td>
+              <td>{tender.budget} {tender.currency}</td>
+              <td>{new Date(tender.deadline).toLocaleDateString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default TenderList;
