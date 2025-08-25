@@ -1,0 +1,24 @@
+// backend/server.js
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const tenderRoutes = require('./routes/tenderRoutes');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Conexión a la base de datos MongoDB
+mongoose.connect('mongodb://localhost:27017/licitanetworkdb', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log('Conectado a la base de datos de MongoDB')).catch(err => console.error('Error de conexión a la base de datos', err));
+
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
+// Rutas de la API
+app.use('/api/tenders', tenderRoutes);
+
+// Iniciar el servidor
+app.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`));
